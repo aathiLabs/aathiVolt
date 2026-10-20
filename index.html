@@ -11,7 +11,14 @@
 <script>
 window.PORTFOLIO_PHOTOS = {
   profile: "assets/aj_1.jpg",
+  
   interests: "assets/proj1.jpg",
+
+  // Additional carousel photos — add as many as you want
+  interestsGallery: [
+    "assets/p1/p1.jpeg", "assets/p1/p2.jpeg", "assets/p1/p3.jpeg","assets/p1/p4.jpeg", "assets/p1/p5.jpeg", "assets/p2/p1.jpeg", "assets/p2/p2.jpeg", "assets/p2/p3.jpeg","assets/p2/p4.jpeg", "assets/p2/p5.jpeg", "assets/p2/p6.jpeg"
+  ],
+
   projectGallery: {
     hacku: ["assets/p1/p1.jpeg", "assets/p1/p2.jpeg", "assets/p1/p3.jpeg","assets/p1/p4.jpeg", "assets/p1/p5.jpeg"],
     audio: ["assets/p2/p1.jpeg", "assets/p2/p2.jpeg", "assets/p2/p3.jpeg","assets/p2/p4.jpeg", "assets/p2/p5.jpeg", "assets/p2/p6.jpeg"],
@@ -663,6 +670,440 @@ else if(!e.shiftKey&&document.activeElement===controls[controls.length-1]){e.pre
 },true);
 })([])
 </script>
+
+<!-- Carosole-->
+ 
+<!-- INTERESTS PHOTO CAROUSEL -->
+<style>
+  #ajv2-site #interests .aj-hobby-carousel {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #183249;
+    border-radius: inherit;
+  }
+
+  /* Flexible image area */
+  #ajv2-site #interests .aj-hobby-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 12px;
+  }
+
+  /* Preserve natural image proportions */
+  #ajv2-site #interests .aj-hobby-image {
+    display: block;
+    /* width: auto; */
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center center;
+  }
+
+  #ajv2-site #interests .aj-hobby-image[hidden] {
+    display: none !important;
+  }
+
+  #ajv2-site #interests .aj-hobby-message {
+    color: #e0ebf3;
+    text-align: center;
+    font-size: 13px;
+    padding: 20px;
+    line-height: 1.7;
+  }
+
+  /* Left and right controls */
+  #ajv2-site #interests .aj-hobby-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 39px;
+    height: 39px;
+    border: 1px solid #ffffff80;
+    border-radius: 50%;
+    background: #ffffffed;
+    color: #183249;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 3px 15px #0003;
+  }
+
+  #ajv2-site #interests .aj-hobby-prev {
+    left: 13px;
+  }
+
+  #ajv2-site #interests .aj-hobby-next {
+    right: 13px;
+  }
+
+  #ajv2-site #interests .aj-hobby-arrow:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  /* Photo counter and indicators */
+  #ajv2-site #interests .aj-hobby-bottom {
+    flex: 0 0 auto;
+    min-height: 49px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #10273a;
+    color: #dceaf3;
+  }
+
+  #ajv2-site #interests .aj-hobby-counter {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 750;
+  }
+
+  #ajv2-site #interests .aj-hobby-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    padding: 5px;
+  }
+
+  #ajv2-site #interests .aj-hobby-dot {
+    width: 8px;
+    height: 8px;
+    min-width: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #728a9d;
+    cursor: pointer;
+  }
+
+  #ajv2-site #interests .aj-hobby-dot.active {
+    width: 19px;
+    min-width: 19px;
+    border-radius: 8px;
+    background: #d6ef9b;
+  }
+
+  #ajv2-site #interests .aj-hobby-carousel
+  button:focus-visible {
+    outline: 3px solid #a6d5ff;
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 600px) {
+    #ajv2-site #interests .aj-hobby-stage {
+      padding: 8px;
+    }
+
+    #ajv2-site #interests .aj-hobby-arrow {
+      width: 33px;
+      height: 33px;
+      font-size: 22px;
+    }
+
+    #ajv2-site #interests .aj-hobby-prev {
+      left: 6px;
+    }
+
+    #ajv2-site #interests .aj-hobby-next {
+      right: 6px;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  "use strict";
+
+  // Prevent duplicate initialization.
+  if (window.__ajInterestsCarouselInitialized) return;
+
+  const frame = document.querySelector(
+    "#ajv2-site #interests .interest-photo-frame"
+  );
+
+  if (!frame) {
+    console.warn("Interests photo frame not found.");
+    return;
+  }
+
+  window.__ajInterestsCarouselInitialized = true;
+
+  const config = window.PORTFOLIO_PHOTOS || {};
+
+  // Existing interests photo becomes the first slide.
+  // Also accepts an array if already configured that way.
+  const original = Array.isArray(config.interests)
+    ? config.interests
+    : [config.interests];
+
+  const additional = Array.isArray(config.interestsGallery)
+    ? config.interestsGallery
+    : [];
+
+  // Remove empty values and duplicates.
+  // No fixed limit on the number of photos.
+  const photos = [...new Set(
+    [...original, ...additional].filter(
+      value =>
+        typeof value === "string" &&
+        value.trim().length > 0
+    )
+  )];
+
+  // Hide the original single-image elements.
+  // They are replaced by the carousel.
+  const oldPhoto = frame.querySelector(
+    "#ajv2-interest-photo"
+  );
+  const oldPlaceholder = frame.querySelector(
+    "#ajv2-interest-placeholder"
+  );
+  const oldCaption = frame.querySelector(
+    ".interest-caption"
+  );
+
+  [oldPhoto, oldPlaceholder, oldCaption].forEach(
+    element => {
+      if (element) element.style.display = "none";
+    }
+  );
+
+  // Create the carousel.
+  const carousel = document.createElement("div");
+  carousel.className = "aj-hobby-carousel";
+  carousel.setAttribute("aria-label", "Interests photo carousel");
+
+  carousel.innerHTML = `
+    <div class="aj-hobby-stage">
+
+      <img
+        class="aj-hobby-image"
+        alt="Interests photograph"
+        hidden
+      >
+
+      <div class="aj-hobby-message" role="status">
+        Loading photographs...
+      </div>
+
+      <button
+        type="button"
+        class="aj-hobby-arrow aj-hobby-prev"
+        aria-label="Previous interests photograph"
+      >&#8249;</button>
+
+      <button
+        type="button"
+        class="aj-hobby-arrow aj-hobby-next"
+        aria-label="Next interests photograph"
+      >&#8250;</button>
+
+    </div>
+
+    <div class="aj-hobby-bottom">
+
+      <span class="aj-hobby-counter" aria-live="polite">
+        0 / 0
+      </span>
+
+      <div
+        class="aj-hobby-dots"
+        aria-label="Choose interests photograph"
+      ></div>
+
+    </div>
+  `;
+
+  frame.appendChild(carousel);
+
+  const image = carousel.querySelector(".aj-hobby-image");
+  const message = carousel.querySelector(".aj-hobby-message");
+  const prev = carousel.querySelector(".aj-hobby-prev");
+  const next = carousel.querySelector(".aj-hobby-next");
+  const counter = carousel.querySelector(".aj-hobby-counter");
+  const dots = carousel.querySelector(".aj-hobby-dots");
+  const stage = carousel.querySelector(".aj-hobby-stage");
+
+  let index = 0;
+  let renderToken = 0;
+
+  function render() {
+    const token = ++renderToken;
+
+    image.hidden = true;
+    image.removeAttribute("src");
+
+    counter.textContent = photos.length
+      ? `${index + 1} / ${photos.length}`
+      : "0 / 0";
+
+    prev.disabled = photos.length <= 1;
+    next.disabled = photos.length <= 1;
+
+    dots.replaceChildren();
+
+    if (photos.length === 0) {
+      message.hidden = false;
+      message.textContent =
+        "Add photographs to interestsGallery to display them here.";
+      return;
+    }
+
+    // Load the selected image at its natural proportions.
+    message.hidden = false;
+    message.textContent = "Loading photo...";
+
+    const loader = new Image();
+
+    loader.onload = function () {
+      if (token !== renderToken) return;
+
+      image.src = photos[index];
+      image.alt = `Interests photograph ${index + 1}`;
+      image.hidden = false;
+      message.hidden = true;
+    };
+
+    loader.onerror = function () {
+      if (token !== renderToken) return;
+
+      image.hidden = true;
+      message.hidden = false;
+      message.textContent =
+        "Photo could not be loaded. Check its filename or URL.";
+    };
+
+    loader.src = photos[index];
+
+    // Dynamically create an indicator for every photo.
+    photos.forEach((source, i) => {
+      const dot = document.createElement("button");
+
+      dot.type = "button";
+      dot.className = "aj-hobby-dot";
+
+      dot.setAttribute(
+        "aria-label",
+        `Show interests photo ${i + 1}`
+      );
+
+      if (i === index) {
+        dot.classList.add("active");
+        dot.setAttribute("aria-current", "true");
+      }
+
+      dot.addEventListener("click", function () {
+        index = i;
+        render();
+      });
+
+      dots.appendChild(dot);
+    });
+  }
+
+  function move(direction) {
+    if (photos.length <= 1) return;
+
+    index =
+      (index + direction + photos.length)
+      % photos.length;
+
+    render();
+  }
+
+  // Button navigation.
+  prev.addEventListener("click", function () {
+    move(-1);
+  });
+
+  next.addEventListener("click", function () {
+    move(1);
+  });
+
+  // Keyboard navigation when carousel is focused.
+  carousel.tabIndex = 0;
+
+  carousel.addEventListener("keydown", function (event) {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      move(-1);
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      move(1);
+    }
+  });
+
+  // Touch swipe support for mobile devices.
+  let startX = null;
+  let startY = null;
+
+  stage.addEventListener(
+    "touchstart",
+    function (event) {
+      if (event.touches.length !== 1) return;
+
+      startX = event.touches[0].clientX;
+      startY = event.touches[0].clientY;
+    },
+    { passive: true }
+  );
+
+  stage.addEventListener(
+    "touchend",
+    function (event) {
+      if (startX === null || startY === null) return;
+
+      const touch = event.changedTouches[0];
+
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+
+      // Respond only to deliberate horizontal swipes.
+      if (
+        Math.abs(dx) > 45 &&
+        Math.abs(dx) > Math.abs(dy) * 1.3
+      ) {
+        move(dx < 0 ? 1 : -1);
+      }
+
+      startX = null;
+      startY = null;
+    },
+    { passive: true }
+  );
+
+  // Display the first picture.
+  render();
+
+})();
+</script>
+<!-- END INTERESTS PHOTO CAROUSEL -->
+
 
 <!-- Added -->
 <script>
