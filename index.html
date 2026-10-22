@@ -1605,5 +1605,211 @@ else if(!e.shiftKey&&document.activeElement===controls[controls.length-1]){e.pre
 </script>
 
 
+<!-- MOBILE NAVIGATION FIX -->
+<style>
+@media (max-width: 680px) {
+
+  /* Ensure the header and dropdown are visible */
+  #ajv2-site .nav-wrap {
+    z-index: 999 !important;
+    overflow: visible !important;
+  }
+
+  #ajv2-site .site-nav {
+    position: relative;
+  }
+
+  /* Hamburger button */
+  #ajv2-site .menu-toggle {
+    display: block !important;
+    position: relative;
+    z-index: 1002;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* Mobile menu: hidden by default */
+  #ajv2-site .nav-links {
+    display: none !important;
+
+    position: absolute !important;
+    top: 100% !important;
+    left: -20px !important;
+    right: -20px !important;
+
+    width: auto !important;
+    padding: 12px 20px 20px !important;
+
+    background: #ffffff !important;
+    border-bottom: 1px solid #dce5ee;
+
+    box-shadow: 0 15px 30px rgba(0,0,0,0.14);
+
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+
+    max-height: calc(100dvh - 70px);
+    overflow-y: auto;
+
+    z-index: 1001 !important;
+  }
+
+  /* Show menu when hamburger is clicked */
+  #ajv2-site .nav-links.is-open {
+    display: flex !important;
+  }
+
+  /* Make navigation links easy to tap */
+  #ajv2-site .nav-links a {
+    display: block;
+    padding: 13px 12px !important;
+    font-size: 14px !important;
+    border-bottom: 1px solid #eef2f6;
+    text-decoration: none;
+  }
+
+  #ajv2-site .nav-links a:last-child {
+    border-bottom: none;
+  }
+}
+</style>
+
+<script>
+(function () {
+  "use strict";
+
+  function initializeMobileMenu() {
+
+    // Use the existing website elements.
+    const site = document.getElementById("ajv2-site");
+
+    if (!site) return;
+
+    const toggle =
+      site.querySelector("#ajv2-toggle") ||
+      site.querySelector(".menu-toggle");
+
+    const menu =
+      site.querySelector("#ajv2-nav") ||
+      site.querySelector(".nav-links");
+
+    if (!toggle || !menu) {
+      console.warn("Mobile navigation elements not found.");
+      return;
+    }
+
+    // Prevent installing the fix more than once.
+    if (toggle.dataset.mobileNavFixed === "true") return;
+
+    toggle.dataset.mobileNavFixed = "true";
+
+    const mobile = window.matchMedia("(max-width: 680px)");
+
+    // Accessibility attributes.
+    toggle.setAttribute("aria-controls", menu.id);
+    toggle.setAttribute("aria-expanded", "false");
+
+    function setMenuState(open) {
+
+      menu.classList.toggle("is-open", open);
+
+      toggle.setAttribute(
+        "aria-expanded",
+        String(open)
+      );
+
+      toggle.setAttribute(
+        "aria-label",
+        open ? "Close navigation" : "Open navigation"
+      );
+
+      toggle.textContent = open ? "✕" : "☰";
+    }
+
+    // Capture the click before older navigation handlers.
+    // This avoids opening and immediately closing the menu.
+    document.addEventListener("click", function (event) {
+
+      const target = event.target;
+
+      // Hamburger clicked.
+      if (toggle.contains(target) && mobile.matches) {
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const isOpen = menu.classList.contains("is-open");
+
+        setMenuState(!isOpen);
+
+        return;
+      }
+
+      // Navigation link clicked.
+      if (menu.contains(target)) {
+
+        const link = target.closest("a");
+
+        if (link) {
+          setMenuState(false);
+        }
+
+        return;
+      }
+
+      // Click outside the menu.
+      if (menu.classList.contains("is-open")) {
+        setMenuState(false);
+      }
+
+    }, true);
+
+    // Close using Escape.
+    document.addEventListener("keydown", function (event) {
+
+      if (
+        event.key === "Escape" &&
+        menu.classList.contains("is-open")
+      ) {
+        setMenuState(false);
+        toggle.focus();
+      }
+
+    });
+
+    // Reset when switching to desktop layout.
+    mobile.addEventListener("change", function (event) {
+
+      if (!event.matches) {
+        setMenuState(false);
+      }
+
+    });
+
+    // Start closed.
+    setMenuState(false);
+  }
+
+  // Works even when the script loads before the page is ready.
+  if (document.readyState === "loading") {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeMobileMenu,
+      { once: true }
+    );
+
+  } else {
+
+    initializeMobileMenu();
+
+  }
+
+})();
+</script>
+<!-- END MOBILE NAVIGATION FIX -->
+
+
 </body>
 </html>
