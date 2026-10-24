@@ -1,0 +1,90 @@
+HackaCHusetts 2026 - Hackachusetts_Wearables2026 Project Ideas
+================================================================
+
+Focus: Real-world friction points in critical industry tracks
+- Biotech & Healthcare
+- Robotics & Hardware
+- Energy & Climate Tech
+- Education / Civic Action
+
+WEARABLES-FOCUSED IDEAS FOR HACKACHUSETTS 2026
+================================================
+
+1. PATIENT HEALTH MONITORING WEARABLE
+   - Track vital signs (heart rate, blood oxygen, temperature, sleep quality)
+   - Alert caregivers to anomalies in real-time
+   - Integrate with EHR systems for automatic logging
+   - Use case: Post-discharge monitoring, chronic disease management
+
+2. ELDERLY FALL DETECTION & EMERGENCY RESPONSE
+   - Wearable that detects falls using accelerometer/gyroscope
+   - Auto-alerts family + emergency services with location
+   - Addresses real friction: delayed response time for seniors living alone
+
+3. CAREGIVER STRESS MONITOR
+   - Wrist-worn device tracking stress markers (heart rate variability, movement patterns)
+   - Recommends breaks, connects to respite care services
+   - Helps prevent caregiver burnout
+
+4. WORKER SAFETY COMPLIANCE TRACKER
+   - Wearable for construction/warehouse workers
+   - Detects unsafe movements, heat exhaustion, fatigue
+   - Logs safety compliance automatically
+   - Reduces workplace injuries and liability
+
+5. STUDENT FOCUS & WELLNESS TRACKER
+   - Campus-integrated wearable monitoring sleep, stress, activity
+   - Correlates with academic performance (anonymized)
+   - Sends alerts when student is at risk of burnout
+   - Improves campus mental health interventions
+
+6. ENVIRONMENTAL EXPOSURE MONITORING
+   - Wearable detecting air quality, UV exposure, noise levels
+   - Particularly useful for outdoor workers (construction, agriculture)
+   - Alerts when exposure limits exceeded
+   - Data fed to public health dashboards
+
+7. MEDICATION ADHERENCE WEARABLE
+   - Smart bracelet/ring that reminds you to take meds
+   - Vibration pattern codes for different medications
+   - Logs adherence for doctor review
+   - Critical for chronic disease management
+
+8. THERMAL EFFICIENCY MONITOR FOR HVAC WORKERS
+   - Wearable that measures temperature differentials
+   - Guides technicians to find thermal leaks efficiently
+   - Reduces time spent diagnosing HVAC inefficiencies
+   - Integrates with building energy audit tools
+
+9. ATHLETE/SPORTS RECOVERY OPTIMIZATION
+   - Wearable combining biometric data (HRV, core temp, sleep)
+   - AI recommends optimal recovery time before next training
+   - Used by schools to prevent overtraining injuries
+
+10. ACCESSIBILITY CONTROL WEARABLE
+    - Wearable interface for people with limited mobility
+    - Controls wheelchairs, robotic arms, smart homes via gesture/eye-tracking
+    - Bridges gap between disability and technology
+
+IMPLEMENTATION APPROACH FOR HACKATHON
+======================================
+- Partner with existing wearable hardware (Fitbit API, Apple Watch, Oura Ring)
+- Focus on backend: data aggregation, ML analysis, integration layers
+- Build the software layer that makes wearable data actionable
+- MVP: Collect data → Analyze → Alert/Recommend
+
+KEY FRICTION POINTS TO SOLVE
+==============================
+✓ Wearable data is siloed—integrate across platforms
+✓ No actionable insights—add ML/AI layer
+✓ Manual logging—automate for healthcare/compliance
+✓ No integration with existing systems—build connectors
+✓ Privacy concerns—implement proper HIPAA/data handling
+
+WHY WEARABLES FOR HACKACHUSETTS
+=================================
+- Clear health/safety impact (Biotech & Healthcare, Education)
+- Hardware + Software blend (Robotics & Hardware angle)
+- Energy efficiency potential (wearables vs. stationary monitoring)
+- Civic action angle (workplace safety, elderly care, accessibility)
+- Data-driven outcomes measurable and impressive for judges
