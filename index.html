@@ -30,6 +30,25 @@ window.PORTFOLIO_PHOTOS = {
 };
 
 </script>
+
+<script>
+window.PORTFOLIO_INTEREST_TITLES = [
+  "My First Photo",
+  "My Second Photo",
+  "My Third Photo",
+  "My Fourth Photo",
+  "My Fifth Photo",
+  "My Sixth Photo",
+  "My Seventh Photo",
+  "My Eighth Photo",
+  "My Ninth Photo",
+  "My Tenth Photo",
+  "My Eleventh Photo",
+  "My Twelfth Photo"
+];
+</script>
+
+
 <div id="ajv2-site" class="ajv2-site" data-app-block-stream-enter="">
 <style>
 #ajv2-site{--navy:#102338;--deep:#091827;--blue:#4668db;--mint:#b9e8d1;--lime:#d6ef9b;--paper:#f5f7f8;--ink:#13283b;--muted:#627284;--stroke:#dde5e9;font-family:Inter,"Segoe UI",Arial,sans-serif;background:#fff;color:var(--ink);line-height:1.58;width:100%;isolation:isolate;overflow:hidden}
@@ -1809,6 +1828,526 @@ else if(!e.shiftKey&&document.activeElement===controls[controls.length-1]){e.pre
 })();
 </script>
 <!-- END MOBILE NAVIGATION FIX -->
+
+
+<!-- INTERESTS PHOTO POPUP -->
+<style>
+  #aj-hobby-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background: rgba(5, 16, 29, 0.9);
+    box-sizing: border-box;
+  }
+
+  #aj-hobby-popup[hidden],
+  #aj-hobby-popup [hidden] {
+    display: none !important;
+  }
+
+  #aj-hobby-popup * {
+    box-sizing: border-box;
+  }
+
+  #aj-hobby-popup .popup-box {
+    width: min(1024px, 100%);
+    height: min(768px, calc(100vh - 24px));
+    height: min(768px, calc(100dvh - 24px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #14283e;
+    color: white;
+    font-family: system-ui, sans-serif;
+    box-shadow: 0 24px 80px #0008;
+  }
+
+  #aj-hobby-popup .popup-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 14px 20px;
+    background: #ffffff;
+    color: #183249;
+  }
+
+  #aj-hobby-popup .popup-header h2 {
+    font-size: clamp(14px, 2vw, 19px);
+    font-weight: 750;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  #aj-hobby-popup .popup-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 12px;
+  }
+
+  /* Keeps aspect ratio and never enlarges small photos */
+  #aj-hobby-popup .popup-image {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  #aj-hobby-popup .popup-message {
+    font-size: 13px;
+    color: #c5d8e6;
+    text-align: center;
+  }
+
+  #aj-hobby-popup .popup-footer {
+    flex-shrink: 0;
+    padding: 12px 20px;
+    background: #ffffff;
+    color: #183249;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  #aj-hobby-popup button {
+    background: #eaf0f6;
+    color: #183249;
+    border: 1px solid #d9e3eb;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 750;
+    padding: 10px 14px;
+    cursor: pointer;
+  }
+
+  #aj-hobby-popup button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  #aj-hobby-popup button:focus-visible {
+    outline: 3px solid #528de0;
+    outline-offset: 2px;
+  }
+
+  #aj-hobby-popup .popup-counter {
+    font-size: 12px;
+    font-weight: 700;
+    color: #50697d;
+    white-space: nowrap;
+  }
+
+  /* Indicates that the carousel photo is clickable */
+  #ajv2-site #interests .aj-hobby-image {
+    cursor: zoom-in;
+  }
+
+  #ajv2-site #interests
+  .aj-hobby-image:focus-visible {
+    outline: 3px solid #80c5ff;
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 600px) {
+    #aj-hobby-popup {
+      padding: 6px;
+    }
+
+    #aj-hobby-popup .popup-box {
+      width: 100%;
+      height: calc(100dvh - 12px);
+      border-radius: 9px;
+    }
+
+    #aj-hobby-popup .popup-header,
+    #aj-hobby-popup .popup-footer {
+      padding: 12px;
+    }
+
+    #aj-hobby-popup .popup-stage {
+      padding: 7px;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  "use strict";
+
+  if (window.__ajHobbyPopupInitialized) return;
+
+  const frame = document.querySelector(
+    "#ajv2-site #interests .interest-photo-frame"
+  );
+
+  if (!frame) {
+    console.warn("Interests carousel not found.");
+    return;
+  }
+
+  window.__ajHobbyPopupInitialized = true;
+
+  // Read the same images as the existing carousel.
+  function getPhotos() {
+    const config = window.PORTFOLIO_PHOTOS || {};
+
+    const first = Array.isArray(config.interests)
+      ? config.interests
+      : [config.interests];
+
+    const remaining = Array.isArray(config.interestsGallery)
+      ? config.interestsGallery
+      : [];
+
+    return [...new Set(
+      [...first, ...remaining].filter(
+        value =>
+          typeof value === "string" &&
+          value.trim() !== ""
+      )
+    )];
+  }
+
+  // Titles use the same index order as the photographs.
+  function getTitle(index) {
+    const titles = window.PORTFOLIO_INTEREST_TITLES;
+
+    if (
+      Array.isArray(titles) &&
+      typeof titles[index] === "string" &&
+      titles[index].trim()
+    ) {
+      return titles[index];
+    }
+
+    return "Photo " + (index + 1);
+  }
+
+  // Build the popup outside the portfolio container.
+  const popup = document.createElement("div");
+  popup.id = "aj-hobby-popup";
+  popup.hidden = true;
+
+  popup.innerHTML = `
+    <div class="popup-box"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="aj-hobby-title">
+
+      <div class="popup-header">
+        <h2 id="aj-hobby-title"></h2>
+
+        <button type="button"
+                id="aj-hobby-close"
+                aria-label="Close photograph">
+          ✕
+        </button>
+      </div>
+
+      <div class="popup-stage">
+        <img id="aj-hobby-large"
+             class="popup-image"
+             alt=""
+             hidden>
+
+        <div id="aj-hobby-message"
+             class="popup-message"
+             role="status"></div>
+      </div>
+
+      <div class="popup-footer">
+        <button type="button" id="aj-hobby-prev">
+          ← Previous
+        </button>
+
+        <span id="aj-hobby-count"
+              class="popup-counter"></span>
+
+        <button type="button" id="aj-hobby-next">
+          Next →
+        </button>
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  const get = id => popup.querySelector("#" + id);
+
+  const largeImage = get("aj-hobby-large");
+  const message = get("aj-hobby-message");
+  const prev = get("aj-hobby-prev");
+  const next = get("aj-hobby-next");
+  const stage = popup.querySelector(".popup-stage");
+
+  let photos = [];
+  let currentIndex = 0;
+  let renderToken = 0;
+  let previousFocus = null;
+  let previousOverflow = "";
+
+  function render() {
+    const token = ++renderToken;
+
+    const src = photos[currentIndex];
+    const title = getTitle(currentIndex);
+
+    get("aj-hobby-title").textContent = title;
+
+    get("aj-hobby-count").textContent =
+      `${currentIndex + 1} / ${photos.length}`;
+
+    prev.disabled = photos.length <= 1;
+    next.disabled = photos.length <= 1;
+
+    largeImage.hidden = true;
+    largeImage.removeAttribute("src");
+
+    message.hidden = false;
+    message.textContent = "Loading photograph...";
+
+    const loader = new Image();
+
+    loader.onload = function () {
+      if (token !== renderToken) return;
+
+      largeImage.src = src;
+      largeImage.alt = title;
+      largeImage.hidden = false;
+      message.hidden = true;
+    };
+
+    loader.onerror = function () {
+      if (token !== renderToken) return;
+
+      message.hidden = false;
+      message.textContent =
+        "Unable to load this photograph. Check its URL.";
+    };
+
+    loader.src = src;
+  }
+
+  function openPopup(index) {
+    photos = getPhotos();
+
+    if (!photos.length) return;
+
+    currentIndex = Math.max(
+      0,
+      Math.min(index, photos.length - 1)
+    );
+
+    previousFocus = document.activeElement;
+    previousOverflow = document.body.style.overflow;
+
+    popup.hidden = false;
+    document.body.style.overflow = "hidden";
+
+    render();
+    get("aj-hobby-close").focus();
+  }
+
+  function closePopup() {
+    popup.hidden = true;
+
+    // Cancel loading results from the previous slide.
+    renderToken++;
+
+    document.body.style.overflow = previousOverflow;
+
+    if (previousFocus && previousFocus.isConnected) {
+      previousFocus.focus();
+    }
+  }
+
+  function move(direction) {
+    if (photos.length <= 1) return;
+
+    currentIndex =
+      (currentIndex + direction + photos.length)
+      % photos.length;
+
+    render();
+  }
+
+  // Find which slide is currently visible
+  // in the existing interests carousel.
+  function activeCarouselIndex() {
+    const dots = Array.from(
+      frame.querySelectorAll(".aj-hobby-dot")
+    );
+
+    const selected = dots.findIndex(
+      dot => dot.classList.contains("active")
+    );
+
+    if (selected >= 0) return selected;
+
+    const counter = frame.querySelector(
+      ".aj-hobby-counter"
+    );
+
+    const number = parseInt(
+      counter?.textContent || "1",
+      10
+    );
+
+    return Number.isFinite(number)
+      ? Math.max(0, number - 1)
+      : 0;
+  }
+
+  // Make the current carousel image clickable.
+  frame.addEventListener("click", function (event) {
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    const image = target.closest(".aj-hobby-image");
+
+    if (!image || image.hidden) return;
+
+    openPopup(activeCarouselIndex());
+  });
+
+  // Allow keyboard users to open the current image.
+  function enableImageKeyboard() {
+    const image = frame.querySelector(".aj-hobby-image");
+
+    if (!image) return;
+
+    image.tabIndex = 0;
+    image.setAttribute("role", "button");
+    image.setAttribute(
+      "aria-label",
+      "Open current interests photo larger"
+    );
+  }
+
+  enableImageKeyboard();
+
+  frame.addEventListener("keydown", function (event) {
+    if (
+      event.target.matches?.(".aj-hobby-image") &&
+      (event.key === "Enter" || event.key === " ")
+    ) {
+      event.preventDefault();
+      openPopup(activeCarouselIndex());
+    }
+  });
+
+  // Popup controls.
+  get("aj-hobby-close").addEventListener(
+    "click", closePopup
+  );
+
+  prev.addEventListener(
+    "click", () => move(-1)
+  );
+
+  next.addEventListener(
+    "click", () => move(1)
+  );
+
+  // Click the dark background to close.
+  popup.addEventListener("click", function (event) {
+    if (event.target === popup) closePopup();
+  });
+
+  // Escape, arrow navigation and keyboard focus.
+  document.addEventListener("keydown", function (event) {
+    if (popup.hidden) return;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closePopup();
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      move(-1);
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      move(1);
+    }
+
+    if (event.key === "Tab") {
+      const controls = [
+        get("aj-hobby-close"),
+        prev,
+        next
+      ].filter(button => !button.disabled);
+
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+
+      if (event.shiftKey &&
+          document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey &&
+                 document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  }, true);
+
+  // Swipe between photos within the popup.
+  let startX = null;
+  let startY = null;
+
+  stage.addEventListener("touchstart", function (event) {
+    if (event.touches.length !== 1) return;
+
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+  }, { passive: true });
+
+  stage.addEventListener("touchend", function (event) {
+    if (startX === null || startY === null) return;
+
+    const touch = event.changedTouches[0];
+
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+
+    if (
+      Math.abs(dx) > 45 &&
+      Math.abs(dx) > Math.abs(dy) * 1.3
+    ) {
+      move(dx < 0 ? 1 : -1);
+    }
+
+    startX = null;
+    startY = null;
+  }, { passive: true });
+
+})();
+</script>
+<!-- END INTERESTS PHOTO POPUP -->
 
 
 </body>
